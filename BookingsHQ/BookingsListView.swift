@@ -10,12 +10,11 @@ import SwiftUI
 // view to display list of bookings
 struct BookingsListView: View {
     @ObservedObject var bookingViewModel: BookingViewModel
-    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
-            // list of all bookings
-            List(bookingViewModel.bookings, id: \.id) { booking in
+        // list of all bookings
+        List(bookingViewModel.bookings, id: \.id) { booking in
+            NavigationLink(destination: BookingDetailView(booking: booking)) {
                 VStack(alignment: .leading, spacing: 8) {
                     // customer name and task type
                     HStack {
@@ -48,14 +47,7 @@ struct BookingsListView: View {
                 }
                 .padding(.vertical, 4)
             }
-            .navigationTitle("Bookings")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
         }
+        .navigationTitle("Bookings")
     }
 }

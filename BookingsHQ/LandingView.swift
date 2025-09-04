@@ -10,10 +10,10 @@ import SwiftUI
 // main landing page view
 struct LandingView: View {
     @StateObject private var bookingViewModel = BookingViewModel()
-    @State private var showBookings = false
     
     var body: some View {
-        VStack(spacing: 40) {
+        NavigationView {
+            VStack(spacing: 40) {
             Spacer()
             
             // app title and description
@@ -35,10 +35,8 @@ struct LandingView: View {
             
             // action buttons
             VStack(spacing: 16) {
-                // button to show bookings list
-                Button(action: {
-                    showBookings = true
-                }) {
+                // button to navigate to bookings list
+                NavigationLink(destination: BookingsListView(bookingViewModel: bookingViewModel)) {
                     Text("View Bookings")
                         .font(.headline)
                         .foregroundColor(.white)
@@ -46,9 +44,6 @@ struct LandingView: View {
                         .padding()
                         .background(Color.blue)
                         .cornerRadius(10)
-                }
-                .sheet(isPresented: $showBookings) {
-                    BookingsListView(bookingViewModel: bookingViewModel)
                 }
                 
                 // placeholder button for creating bookings
@@ -69,7 +64,8 @@ struct LandingView: View {
             .padding(.horizontal, 40)
             
             Spacer()
+            }
+            .background(Color(.systemBackground))
         }
-        .background(Color(.systemBackground))
     }
 }

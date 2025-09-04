@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 // viewmodel for managing bookings data
 class BookingViewModel: ObservableObject {

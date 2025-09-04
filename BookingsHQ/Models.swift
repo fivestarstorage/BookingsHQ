@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 // base booking class that implements both protocols
 class Booking: Bookable, Quotable, ObservableObject {

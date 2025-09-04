@@ -32,6 +32,7 @@ struct LandingView: View {
             
             Spacer()
             
+            
             // action buttons
             VStack(spacing: 16) {
                 // button to show bookings list

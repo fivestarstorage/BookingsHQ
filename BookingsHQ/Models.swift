@@ -9,7 +9,6 @@ import Foundation
 import Combine
 import CoreLocation
 
-// location of pickup or dropoff with coordinates and description
 struct BookingLocation {
     var coordinate: CLLocationCoordinate2D
     var description: String
@@ -135,8 +134,8 @@ class FakeDataManager {
         
         bookings[1].description = "Large package delivery containing office equipment and supplies. Package dimensions: 2m x 1.5m x 1m. Weight approximately 85kg. Requires careful handling and may need assistance at delivery location."
         
-        // set one booking to inProgress for testing
-        bookings[1].updateStatus(.inProgress)
+        // actually lets keep this as pending.
+     //   bookings[1].updateStatus(.inProgress)
         
         // calculate quotes for all bookings
         bookings[0].calculateQuote()

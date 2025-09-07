@@ -8,14 +8,11 @@
 import SwiftUI
 import MapKit
 
-// map annotation for pickup and dropoff pins
 struct LocationAnnotation: Identifiable {
     let id = UUID()
     let coordinate: CLLocationCoordinate2D
     let isPinP: Bool
 }
-
-// view to edit booking details
 struct BookingDetailView: View {
     @ObservedObject var booking: Booking
     @State private var editedDescription: String = ""
@@ -45,7 +42,7 @@ struct BookingDetailView: View {
             }
    
             
-            // description field
+            
             VStack(alignment: .leading, spacing: 8) {
                 Text("Description")
                     .font(.headline)
@@ -59,7 +56,6 @@ struct BookingDetailView: View {
                     .cornerRadius(8)
             }
             
-            // map view
             VStack(alignment: .leading, spacing: 8) {
                 Text("Pickup/Dropoff Locations")
                     .font(.headline)
@@ -88,9 +84,8 @@ struct BookingDetailView: View {
                 .frame(height: 200)
                 .cornerRadius(10)
             }
-            
-            // action buttons - only show when status is inProgress
-            if booking.status == .inProgress {
+            //accidentally made the buttons appear for wrong status.
+            if booking.status == .pending {
                 VStack(spacing: 12) {
                     Button("Confirm Booking") {
                         booking.description = editedDescription
@@ -116,6 +111,32 @@ struct BookingDetailView: View {
                 }
             }
             
+            if booking.status == .confirmed {
+                Button("Start Job") {
+                    booking.description = editedDescription
+                    booking.updateStatus(.inProgress)
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.blue)
+                .cornerRadius(10)
+            }
+            
+            if booking.status == .inProgress {
+                Button("Complete Job") {
+                    booking.description = editedDescription
+                    booking.updateStatus(.completed)
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.green)
+                .cornerRadius(10)
+            }
+            
             Spacer()
         }
         .padding()
@@ -131,7 +152,6 @@ struct BookingDetailView: View {
         }
     }
     
-    // create map annotations for pickup and dropoff
     private func mapAnnotations() -> [LocationAnnotation] {
         var annotations: [LocationAnnotation] = []
         
@@ -146,7 +166,6 @@ struct BookingDetailView: View {
         return annotations
     }
     
-    // setup map region to show both pickup and dropoff
     private func setupMapRegion() {
         guard let pickup = booking.pickupLocation,
               let dropoff = booking.dropoffLocation else {

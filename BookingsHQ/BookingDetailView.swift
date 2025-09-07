@@ -67,17 +67,32 @@ struct BookingDetailView: View {
                 .cornerRadius(10)
             }
             
-            // save button
-            Button("Save Changes") {
-                booking.customerName = editedName
-                booking.description = editedDescription
+            // action buttons
+            VStack(spacing: 12) {
+                Button("Confirm Booking") {
+                    booking.customerName = editedName
+                    booking.description = editedDescription
+                    booking.updateStatus(.confirmed)
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.green)
+                .cornerRadius(10)
+                
+                Button("Decline Booking") {
+                    booking.customerName = editedName
+                    booking.description = editedDescription
+                    booking.updateStatus(.cancelled)
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.red)
+                .cornerRadius(10)
             }
-            .font(.headline)
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.blue)
-            .cornerRadius(10)
             
             Spacer()
         }

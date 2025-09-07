@@ -22,7 +22,7 @@ struct BookingDetailView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            VStack( alignment: .leading, spacing: 8) {
+            VStack(spacing: 8) {
                 Text(booking.title.isEmpty ? "Untitled Booking" : booking.title)
                     .font(.title2)
                     .fontWeight(.bold)

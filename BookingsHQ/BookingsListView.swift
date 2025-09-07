@@ -34,12 +34,8 @@ struct BookingsListView: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
-                    // status and cost
+                    // cost
                     HStack {
-                        Text("Status: \(booking.status.rawValue)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
                         Text("$\(booking.estimatedCost, specifier: "%.0f")")
                             .font(.headline)
                             .foregroundColor(.green)

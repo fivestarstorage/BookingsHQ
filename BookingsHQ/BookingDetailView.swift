@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 // view to edit booking details
 struct BookingDetailView: View {
@@ -29,6 +30,15 @@ struct BookingDetailView: View {
                     .font(.headline)
                 TextField("Enter description", text: $editedDescription)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+            }
+            
+            // map view
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Pickup/Dropoff Locations")
+                    .font(.headline)
+                Map()
+                    .frame(height: 200)
+                    .cornerRadius(10)
             }
             
             // save button

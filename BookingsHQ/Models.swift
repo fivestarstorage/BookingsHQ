@@ -127,8 +127,13 @@ class FakeDataManager {
         let bookings = [
             RemovalBooking(customerName: "Riley Martin", fromAddress: "123 Main St", toAddress: "456 Oak Ave", itemCount: 5, title: "House Removal - CBD to Suburbs", pickupLocation: pickup1, dropoffLocation: dropoff1),
             DeliveryBooking(customerName: "Firas Al-Doghman", deliveryAddress: "789 Pine St", packageSize: "Large", title: "Large Package Delivery", pickupLocation: pickup2, dropoffLocation: dropoff2),
-            Booking(customerName: "Mike Tyson", taskType: .transport, title: "Piano Transport Service", description: "Piano transport", pickupLocation: pickup3, dropoffLocation: dropoff3)
+            Booking(customerName: "Mike Tyson", taskType: .transport, title: "Piano Transport Service", description: "Professional piano transport from Opera House to Town Hall. Requires specialized equipment and careful handling. Piano is a Steinway grand piano weighing approximately 480kg. Access via stairs at pickup location.", pickupLocation: pickup3, dropoffLocation: dropoff3)
         ]
+        
+        // add descriptions to bookings
+        bookings[0].description = "Complete house removal service from CBD apartment to suburban home. Items include furniture, appliances, and personal belongings. Requires 2-3 movers and large truck. Special care needed for antique dining table and fragile items."
+        
+        bookings[1].description = "Large package delivery containing office equipment and supplies. Package dimensions: 2m x 1.5m x 1m. Weight approximately 85kg. Requires careful handling and may need assistance at delivery location."
         
         // calculate quotes for all bookings
         bookings[0].calculateQuote()

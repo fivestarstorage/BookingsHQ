@@ -16,16 +16,16 @@ struct BookingsListView: View {
         List(bookingViewModel.bookings, id: \.id) { booking in
             NavigationLink(destination: BookingDetailView(booking: booking)) {
                 VStack(alignment: .leading, spacing: 8) {
-                    // customer name and task type
+                    // customer name and status
                     HStack {
                         Text(booking.customerName)
                             .font(.headline)
                         Spacer()
-                        Text(booking.taskType.rawValue)
+                        Text(booking.status.rawValue)
                             .font(.caption)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color.blue.opacity(0.2))
+                            .background(booking.status == .pending ? Color.green.opacity(0.2) : Color.blue.opacity(0.2))
                             .cornerRadius(8)
                     }
                     

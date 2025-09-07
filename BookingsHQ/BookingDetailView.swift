@@ -36,8 +36,14 @@ struct BookingDetailView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Description")
                     .font(.headline)
-                TextField("Enter description", text: $editedDescription)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                TextEditor(text: $editedDescription)
+                    .frame(height: 200)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                    .background(Color(.systemBackground))
+                    .cornerRadius(8)
             }
             
             // map view

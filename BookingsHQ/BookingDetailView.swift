@@ -20,6 +20,8 @@ struct BookingDetailView: View {
     @ObservedObject var booking: Booking
     @State private var editedDescription: String = ""
     @State private var region = MKCoordinateRegion()
+    @State private var selectedPinDescription: String = ""
+    @State private var showPinDescription = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -61,16 +63,25 @@ struct BookingDetailView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Pickup/Dropoff Locations")
                     .font(.headline)
-                Map(coordinateRegion: $region, annotationItems: mapAnnotations()) { annotation in
+                Map(coordinateRegion: $region, interactionModes: [], annotationItems: mapAnnotations()) { annotation in
                     MapAnnotation(coordinate: annotation.coordinate) {
-                        ZStack {
-                            Circle()
-                                .fill(annotation.isPinP ? Color.green : Color.red)
-                                .frame(width: 30, height: 30)
-                            Text(annotation.isPinP ? "P" : "D")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
+                        Button(action: {
+                            if annotation.isPinP {
+                                selectedPinDescription = booking.pickupLocation?.description ?? "Pickup location"
+                            } else {
+                                selectedPinDescription = booking.dropoffLocation?.description ?? "Dropoff location"
+                            }
+                            showPinDescription = true
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(annotation.isPinP ? Color.green : Color.red)
+                                    .frame(width: 30, height: 30)
+                                Text(annotation.isPinP ? "P" : "D")
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            }
                         }
                     }
                 }
@@ -78,29 +89,31 @@ struct BookingDetailView: View {
                 .cornerRadius(10)
             }
             
-            // action buttons
-            VStack(spacing: 12) {
-                Button("Confirm Booking") {
-                    booking.description = editedDescription
-                    booking.updateStatus(.confirmed)
+            // action buttons - only show when status is inProgress
+            if booking.status == .inProgress {
+                VStack(spacing: 12) {
+                    Button("Confirm Booking") {
+                        booking.description = editedDescription
+                        booking.updateStatus(.confirmed)
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.green)
+                    .cornerRadius(10)
+                    
+                    Button("Decline Booking") {
+                        booking.description = editedDescription
+                        booking.updateStatus(.cancelled)
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.red)
+                    .cornerRadius(10)
                 }
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.green)
-                .cornerRadius(10)
-                
-                Button("Decline Booking") {
-                    booking.description = editedDescription
-                    booking.updateStatus(.cancelled)
-                }
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.red)
-                .cornerRadius(10)
             }
             
             Spacer()
@@ -110,6 +123,11 @@ struct BookingDetailView: View {
         .onAppear {
             editedDescription = booking.description
             setupMapRegion()
+        }
+        .alert("Location Details", isPresented: $showPinDescription) {
+            Button("OK") { }
+        } message: {
+            Text(selectedPinDescription)
         }
     }
     

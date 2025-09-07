@@ -7,6 +7,18 @@
 
 import Foundation
 import Combine
+import CoreLocation
+
+// location of pickup or dropoff with coordinates and description
+struct BookingLocation {
+    var coordinate: CLLocationCoordinate2D
+    var description: String
+    
+    init(latitude: Double, longitude: Double, description: String) {
+        self.coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        self.description = description
+    }
+}
 
 // base booking class that implements both protocols
 class Booking: Bookable, Quotable, ObservableObject {
@@ -19,12 +31,16 @@ class Booking: Bookable, Quotable, ObservableObject {
     
     var taskType: TaskType
     var description: String
+    @Published var pickupLocation: BookingLocation?
+    @Published var dropoffLocation: BookingLocation?
     
-    // initialize a new booking
-    init(customerName: String, taskType: TaskType, description: String = "") {
+    // add new bookings
+    init(customerName: String, taskType: TaskType, description: String = "", pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
         self.customerName = customerName
         self.taskType = taskType
         self.description = description
+        self.pickupLocation = pickupLocation
+        self.dropoffLocation = dropoffLocation
         self.status = .pending
         self.estimatedCost = 0.0
         self.isConfirmed = false
@@ -55,11 +71,11 @@ class RemovalBooking: Booking {
     var itemCount: Int
     
     // initialize removal booking with addresses
-    init(customerName: String, fromAddress: String, toAddress: String, itemCount: Int) {
+    init(customerName: String, fromAddress: String, toAddress: String, itemCount: Int, pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
         self.fromAddress = fromAddress
         self.toAddress = toAddress
         self.itemCount = itemCount
-        super.init(customerName: customerName, taskType: .removal)
+        super.init(customerName: customerName, taskType: .removal, pickupLocation: pickupLocation, dropoffLocation: dropoffLocation)
     }
     
     // calculate quote based on item count
@@ -75,10 +91,10 @@ class DeliveryBooking: Booking {
     var packageSize: String
     
     // initialize delivery booking with address and size
-    init(customerName: String, deliveryAddress: String, packageSize: String) {
+    init(customerName: String, deliveryAddress: String, packageSize: String, pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
         self.deliveryAddress = deliveryAddress
         self.packageSize = packageSize
-        super.init(customerName: customerName, taskType: .delivery)
+        super.init(customerName: customerName, taskType: .delivery, pickupLocation: pickupLocation, dropoffLocation: dropoffLocation)
     }
     
     // calculate quote based on package size
@@ -95,12 +111,21 @@ class FakeDataManager {
     
     private init() {}
     
-    // create sample bookings with fake data
+    // sample bookings with fake data
     func createSampleBookings() -> [Booking] {
+        let pickup1 = BookingLocation(latitude: -33.8688, longitude: 151.2093, description: "123 George St, Sydney CBD")
+        let dropoff1 = BookingLocation(latitude: -33.8650, longitude: 151.2094, description: "456 Pitt St, Sydney CBD")
+        
+        let pickup2 = BookingLocation(latitude: -33.8700, longitude: 151.2070, description: "Circular Quay")
+        let dropoff2 = BookingLocation(latitude: -33.8620, longitude: 151.2110, description: "789 Market St, Sydney CBD")
+        
+        let pickup3 = BookingLocation(latitude: -33.8730, longitude: 151.2065, description: "Opera House")
+        let dropoff3 = BookingLocation(latitude: -33.8600, longitude: 151.2120, description: "Town Hall")
+        
         let bookings = [
-            RemovalBooking(customerName: "Riley Martin", fromAddress: "123 Main St", toAddress: "456 Oak Ave", itemCount: 5),
-            DeliveryBooking(customerName: "Firas Al-Doghman", deliveryAddress: "789 Pine St", packageSize: "Large"),
-            Booking(customerName: "Mike Tyson", taskType: .transport, description: "Piano transport")
+            RemovalBooking(customerName: "Riley Martin", fromAddress: "123 Main St", toAddress: "456 Oak Ave", itemCount: 5, pickupLocation: pickup1, dropoffLocation: dropoff1),
+            DeliveryBooking(customerName: "Firas Al-Doghman", deliveryAddress: "789 Pine St", packageSize: "Large", pickupLocation: pickup2, dropoffLocation: dropoff2),
+            Booking(customerName: "Mike Tyson", taskType: .transport, description: "Piano transport", pickupLocation: pickup3, dropoffLocation: dropoff3)
         ]
         
         // calculate quotes for all bookings

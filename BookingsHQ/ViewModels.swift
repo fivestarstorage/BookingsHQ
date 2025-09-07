@@ -36,10 +36,5 @@ class BookingViewModel: ObservableObject {
         booking.updateStatus(status)
         objectWillChange.send()
     }
-    
-    // calculate quote for a booking
-    func calculateQuote(for booking: Booking) {
-        let quote = booking.calculateQuote()
-        objectWillChange.send()
-    }
+
 }

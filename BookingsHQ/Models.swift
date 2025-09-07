@@ -137,11 +137,7 @@ class FakeDataManager {
         // actually lets keep this as pending.
      //   bookings[1].updateStatus(.inProgress)
         
-        // calculate quotes for all bookings
-        bookings[0].calculateQuote()
-        bookings[1].calculateQuote()
-        bookings[2].calculateQuote()
-        
+     
         return bookings
     }
 }

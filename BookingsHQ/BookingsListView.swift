@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 // view to display list of bookings
 struct BookingsListView: View {
@@ -77,6 +78,10 @@ struct BookingsListView: View {
         }
         }
         .navigationTitle("Bookings")
+        .onAppear {
+            bookingViewModel.objectWillChange.send()
+            // ensures that the list is updated whenever I open it (onappear). I was making changes in bookingdetailview and it wasnt updating here.
+        }
     }
     
     // filter bookings based on selected status

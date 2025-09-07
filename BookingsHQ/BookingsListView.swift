@@ -10,10 +10,41 @@ import SwiftUI
 // view to display list of bookings
 struct BookingsListView: View {
     @ObservedObject var bookingViewModel: BookingViewModel
+    @State private var selectedStatus: BookingStatus? = nil
     
     var body: some View {
-        // list of all bookings
-        List(bookingViewModel.bookings, id: \.id) { booking in
+        VStack(spacing: 0) {
+            // filter tabs
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    // all bookings tab
+                    Button("All") {
+                        selectedStatus = nil
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(selectedStatus == nil ? Color.blue : Color.gray.opacity(0.2))
+                    .foregroundColor(selectedStatus == nil ? .white : .primary)
+                    .cornerRadius(20)
+                    
+                    // status filter tabs
+                    ForEach(BookingStatus.allCases, id: \.self) { status in
+                        Button(status.rawValue) {
+                            selectedStatus = status
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(selectedStatus == status ? Color.blue : Color.gray.opacity(0.2))
+                        .foregroundColor(selectedStatus == status ? .white : .primary)
+                        .cornerRadius(20)
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+            .padding(.vertical, 12)
+            
+            // filtered list of bookings
+            List(filteredBookings, id: \.id) { booking in
             NavigationLink(destination: BookingDetailView(booking: booking)) {
                 VStack(alignment: .leading, spacing: 8) {
                     // customer name and status
@@ -44,6 +75,16 @@ struct BookingsListView: View {
                 .padding(.vertical, 4)
             }
         }
+        }
         .navigationTitle("Bookings")
+    }
+    
+    // filter bookings based on selected status
+    private var filteredBookings: [Booking] {
+        if let selectedStatus = selectedStatus {
+            return bookingViewModel.bookings.filter { $0.status == selectedStatus }
+        } else {
+            return bookingViewModel.bookings
+        }
     }
 }

@@ -26,8 +26,8 @@ class BookingViewModel: ObservableObject {
     }
     
     // create a new booking and add to list
-    func createBooking(customerName: String, type: TaskType) {
-        let booking = Booking(customerName: customerName, taskType: type)
+    func createBooking(customerName: String, type: TaskType, title: String = "") {
+        let booking = Booking(customerName: customerName, taskType: type, title: title)
         bookings.append(booking)
     }
     

@@ -47,9 +47,9 @@ struct BookingsListView: View {
             List(filteredBookings, id: \.id) { booking in
             NavigationLink(destination: BookingDetailView(booking: booking)) {
                 VStack(alignment: .leading, spacing: 8) {
-                    // customer name and status
+                    // booking title and status
                     HStack {
-                        Text(booking.customerName)
+                        Text(booking.title.isEmpty ? "Untitled Booking" : booking.title)
                             .font(.headline)
                         Spacer()
                         Text(booking.status.rawValue)
@@ -60,8 +60,8 @@ struct BookingsListView: View {
                             .cornerRadius(8)
                     }
                     
-                    // booking description
-                    Text(booking.description.isEmpty ? "No description" : booking.description)
+                    // customer name
+                    Text(booking.customerName)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     

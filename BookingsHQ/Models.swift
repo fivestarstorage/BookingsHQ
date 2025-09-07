@@ -30,14 +30,16 @@ class Booking: Bookable, Quotable, ObservableObject {
     let createdDate = Date()
     
     var taskType: TaskType
+    var title: String
     var description: String
     @Published var pickupLocation: BookingLocation?
     @Published var dropoffLocation: BookingLocation?
     
     // add new bookings
-    init(customerName: String, taskType: TaskType, description: String = "", pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
+    init(customerName: String, taskType: TaskType, title: String = "", description: String = "", pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
         self.customerName = customerName
         self.taskType = taskType
+        self.title = title
         self.description = description
         self.pickupLocation = pickupLocation
         self.dropoffLocation = dropoffLocation
@@ -71,11 +73,11 @@ class RemovalBooking: Booking {
     var itemCount: Int
     
     // initialize removal booking with addresses
-    init(customerName: String, fromAddress: String, toAddress: String, itemCount: Int, pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
+    init(customerName: String, fromAddress: String, toAddress: String, itemCount: Int, title: String = "", pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
         self.fromAddress = fromAddress
         self.toAddress = toAddress
         self.itemCount = itemCount
-        super.init(customerName: customerName, taskType: .removal, pickupLocation: pickupLocation, dropoffLocation: dropoffLocation)
+        super.init(customerName: customerName, taskType: .removal, title: title, pickupLocation: pickupLocation, dropoffLocation: dropoffLocation)
     }
     
     // calculate quote based on item count
@@ -91,10 +93,10 @@ class DeliveryBooking: Booking {
     var packageSize: String
     
     // initialize delivery booking with address and size
-    init(customerName: String, deliveryAddress: String, packageSize: String, pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
+    init(customerName: String, deliveryAddress: String, packageSize: String, title: String = "", pickupLocation: BookingLocation? = nil, dropoffLocation: BookingLocation? = nil) {
         self.deliveryAddress = deliveryAddress
         self.packageSize = packageSize
-        super.init(customerName: customerName, taskType: .delivery, pickupLocation: pickupLocation, dropoffLocation: dropoffLocation)
+        super.init(customerName: customerName, taskType: .delivery, title: title, pickupLocation: pickupLocation, dropoffLocation: dropoffLocation)
     }
     
     // calculate quote based on package size
@@ -123,9 +125,9 @@ class FakeDataManager {
         let dropoff3 = BookingLocation(latitude: -33.8600, longitude: 151.2120, description: "Town Hall")
         
         let bookings = [
-            RemovalBooking(customerName: "Riley Martin", fromAddress: "123 Main St", toAddress: "456 Oak Ave", itemCount: 5, pickupLocation: pickup1, dropoffLocation: dropoff1),
-            DeliveryBooking(customerName: "Firas Al-Doghman", deliveryAddress: "789 Pine St", packageSize: "Large", pickupLocation: pickup2, dropoffLocation: dropoff2),
-            Booking(customerName: "Mike Tyson", taskType: .transport, description: "Piano transport", pickupLocation: pickup3, dropoffLocation: dropoff3)
+            RemovalBooking(customerName: "Riley Martin", fromAddress: "123 Main St", toAddress: "456 Oak Ave", itemCount: 5, title: "House Removal - CBD to Suburbs", pickupLocation: pickup1, dropoffLocation: dropoff1),
+            DeliveryBooking(customerName: "Firas Al-Doghman", deliveryAddress: "789 Pine St", packageSize: "Large", title: "Large Package Delivery", pickupLocation: pickup2, dropoffLocation: dropoff2),
+            Booking(customerName: "Mike Tyson", taskType: .transport, title: "Piano Transport Service", description: "Piano transport", pickupLocation: pickup3, dropoffLocation: dropoff3)
         ]
         
         // calculate quotes for all bookings

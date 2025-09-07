@@ -18,19 +18,30 @@ struct LocationAnnotation: Identifiable {
 // view to edit booking details
 struct BookingDetailView: View {
     @ObservedObject var booking: Booking
-    @State private var editedName: String = ""
     @State private var editedDescription: String = ""
     @State private var region = MKCoordinateRegion()
     
     var body: some View {
         VStack(spacing: 20) {
-            // name field
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Customer Name")
-                    .font(.headline)
-                TextField("Enter name", text: $editedName)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            VStack( alignment: .leading, spacing: 8) {
+                Text(booking.title.isEmpty ? "Untitled Booking" : booking.title)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                
+                Text(booking.customerName)
+                    .font(.title3)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                
+                Text(booking.status.rawValue)
+                    .font(.caption)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(booking.status == .pending ? Color.green.opacity(0.2) : Color.blue.opacity(0.2))
+                    .cornerRadius(12)
             }
+   
             
             // description field
             VStack(alignment: .leading, spacing: 8) {
@@ -70,7 +81,6 @@ struct BookingDetailView: View {
             // action buttons
             VStack(spacing: 12) {
                 Button("Confirm Booking") {
-                    booking.customerName = editedName
                     booking.description = editedDescription
                     booking.updateStatus(.confirmed)
                 }
@@ -82,7 +92,6 @@ struct BookingDetailView: View {
                 .cornerRadius(10)
                 
                 Button("Decline Booking") {
-                    booking.customerName = editedName
                     booking.description = editedDescription
                     booking.updateStatus(.cancelled)
                 }
@@ -99,7 +108,6 @@ struct BookingDetailView: View {
         .padding()
         .navigationTitle("Edit Booking")
         .onAppear {
-            editedName = booking.customerName
             editedDescription = booking.description
             setupMapRegion()
         }

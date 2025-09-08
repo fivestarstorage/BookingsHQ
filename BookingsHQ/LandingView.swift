@@ -10,6 +10,7 @@ import SwiftUI
 // main landing page view
 struct LandingView: View {
     @StateObject private var bookingViewModel = BookingViewModel()
+    @State private var showCreateBooking = false
     
     var body: some View {
         NavigationView {
@@ -46,8 +47,9 @@ struct LandingView: View {
                         .cornerRadius(10)
                 }
                 
-                // placeholder button for creating bookings
+                // button to create new booking
                 Button(action: {
+                    showCreateBooking = true
                 }) {
                     Text("Create Booking")
                         .font(.headline)
@@ -66,6 +68,9 @@ struct LandingView: View {
             Spacer()
             }
             .background(Color(.systemBackground))
+        }
+        .sheet(isPresented: $showCreateBooking) {
+            CreateBookingView(bookingViewModel: bookingViewModel)
         }
     }
 }

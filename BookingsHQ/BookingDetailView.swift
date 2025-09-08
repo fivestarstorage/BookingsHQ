@@ -19,9 +19,13 @@ struct BookingDetailView: View {
     @State private var region = MKCoordinateRegion()
     @State private var selectedPinDescription: String = ""
     @State private var showPinDescription = false
+    @State private var showCompletionNotes = false
+    @State private var completionNotes = ""
     
     var body: some View {
-        VStack(spacing: 20) {
+        // put it in  a scrollview so it doesnt go off the page.
+        ScrollView {
+            VStack(spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
                 Text(booking.title.isEmpty ? "Untitled Booking" : booking.title)
                     .font(.title2)
@@ -126,8 +130,7 @@ struct BookingDetailView: View {
             
             if booking.status == .inProgress {
                 Button("Complete Job") {
-                    booking.description = editedDescription
-                    booking.updateStatus(.completed)
+                    showCompletionNotes = true
                 }
                 .font(.headline)
                 .foregroundColor(.white)
@@ -137,9 +140,26 @@ struct BookingDetailView: View {
                 .cornerRadius(10)
             }
             
-            Spacer()
+            if booking.status == .completed && !booking.completionNotes.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Completion Notes")
+                        .font(.headline)
+                    Text(booking.completionNotes)
+                        .frame(height: 200, alignment: .topLeading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                        )
+                        .background(Color(.systemBackground))
+                        .cornerRadius(8)
+                }
+            }
+            
+            }
+            .padding()
         }
-        .padding()
         .navigationTitle("Edit Booking")
         .onAppear {
             editedDescription = booking.description
@@ -149,6 +169,19 @@ struct BookingDetailView: View {
             Button("OK") { }
         } message: {
             Text(selectedPinDescription)
+        }
+        .sheet(isPresented: $showCompletionNotes) {
+            CompletionNotesView(
+                completionNotes: $completionNotes,
+                onSave: {
+                    booking.description = editedDescription
+                    booking.completionNotes = completionNotes
+                    booking.updateStatus(.completed)
+                },
+                onCancel: {
+                    completionNotes = ""
+                }
+            )
         }
     }
     

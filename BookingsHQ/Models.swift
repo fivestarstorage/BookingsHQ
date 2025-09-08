@@ -31,6 +31,7 @@ class Booking: Bookable, Quotable, ObservableObject {
     var taskType: TaskType
     var title: String
     var description: String
+    @Published var completionNotes: String = ""
     @Published var pickupLocation: BookingLocation?
     @Published var dropoffLocation: BookingLocation?
     
@@ -40,6 +41,7 @@ class Booking: Bookable, Quotable, ObservableObject {
         self.taskType = taskType
         self.title = title
         self.description = description
+        self.completionNotes = ""
         self.pickupLocation = pickupLocation
         self.dropoffLocation = dropoffLocation
         self.status = .pending

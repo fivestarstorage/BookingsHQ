@@ -19,6 +19,9 @@ struct CreateBookingView: View {
     @State private var region = MKCoordinateRegion()
     @State private var pickupLocation: BookingLocation?
     @State private var dropoffLocation: BookingLocation?
+    @State private var showError = false
+    @State private var errorMessage = ""
+    @State private var geocodeTask: Task<Void, Never>?
     
     var body: some View {
         NavigationView {
@@ -44,7 +47,7 @@ struct CreateBookingView: View {
                         TextField("Enter pickup address", text: $pickupAddress)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .onChange(of: pickupAddress) { newValue in
-                                geocodeAddress(newValue, isPickup: true)
+                                geocodeAddressWithDebounce(newValue, isPickup: true)
                             }
                     }
                     
@@ -54,7 +57,7 @@ struct CreateBookingView: View {
                         TextField("Enter dropoff address", text: $dropoffAddress)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .onChange(of: dropoffAddress) { newValue in
-                                geocodeAddress(newValue, isPickup: false)
+                                geocodeAddressWithDebounce(newValue, isPickup: false)
                             }
                     }
                     
@@ -92,8 +95,7 @@ struct CreateBookingView: View {
                     }
                     
                     Button("Create Booking") {
-                        createBooking()
-                        dismiss()
+                        validateAndCreateBooking()
                     }
                     .font(.headline)
                     .foregroundColor(.white)
@@ -117,6 +119,11 @@ struct CreateBookingView: View {
             .onAppear {
                 setupDefaultRegion()
             }
+            .alert("Error", isPresented: $showError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
         }
     }
     
@@ -134,6 +141,16 @@ struct CreateBookingView: View {
         return annotations
     }
     
+    private func geocodeAddressWithDebounce(_ address: String, isPickup: Bool) {
+        geocodeTask?.cancel()
+        geocodeTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)  //added 5s delay before refresh
+            if !Task.isCancelled {
+                geocodeAddress(address, isPickup: isPickup)
+            }
+        }
+    }
+    
     private func geocodeAddress(_ address: String, isPickup: Bool) {
         guard !address.isEmpty else {
             if isPickup {
@@ -147,24 +164,26 @@ struct CreateBookingView: View {
         
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(address) { placemarks, error in
-            guard let placemark = placemarks?.first,
-                  let coordinate = placemark.location?.coordinate else {
-                return
+            DispatchQueue.main.async {
+                guard let placemark = placemarks?.first,
+                      let coordinate = placemark.location?.coordinate else {
+                    return
+                }
+                
+                let location = BookingLocation(
+                    latitude: coordinate.latitude,
+                    longitude: coordinate.longitude,
+                    description: address
+                )
+                
+                if isPickup {
+                    pickupLocation = location
+                } else {
+                    dropoffLocation = location
+                }
+                
+                updateMapRegion()
             }
-            
-            let location = BookingLocation(
-                latitude: coordinate.latitude,
-                longitude: coordinate.longitude,
-                description: address
-            )
-            
-            if isPickup {
-                pickupLocation = location
-            } else {
-                dropoffLocation = location
-            }
-            
-            updateMapRegion()
         }
     }
     
@@ -172,13 +191,20 @@ struct CreateBookingView: View {
         if let pickup = pickupLocation, let dropoff = dropoffLocation {
             let centerLat = (pickup.coordinate.latitude + dropoff.coordinate.latitude) / 2
             let centerLon = (pickup.coordinate.longitude + dropoff.coordinate.longitude) / 2
-            
-            let latDelta = abs(pickup.coordinate.latitude - dropoff.coordinate.latitude) * 1.5
-            let lonDelta = abs(pickup.coordinate.longitude - dropoff.coordinate.longitude) * 1.5
-            
+
+            let latDelta = abs(pickup.coordinate.latitude - dropoff.coordinate.latitude)
+            let lonDelta = abs(pickup.coordinate.longitude - dropoff.coordinate.longitude)
+
+            let safeLatDelta = max(latDelta * 1.5, 0.01)
+            let safeLonDelta = max(lonDelta * 1.5, 0.01)
+
+            let maxDelta: CLLocationDegrees = 180.0
+            let clampedLatDelta = min(safeLatDelta, maxDelta)
+            let clampedLonDelta = min(safeLonDelta, maxDelta)
+
             region = MKCoordinateRegion(
                 center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
-                span: MKCoordinateSpan(latitudeDelta: max(latDelta, 0.01), longitudeDelta: max(lonDelta, 0.01))
+                span: MKCoordinateSpan(latitudeDelta: clampedLatDelta, longitudeDelta: clampedLonDelta)
             )
         } else if let pickup = pickupLocation {
             region = MKCoordinateRegion(
@@ -198,6 +224,45 @@ struct CreateBookingView: View {
             center: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093),
             span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
         )
+    }
+    
+    private func validateAndCreateBooking() {
+        guard let pickup = pickupLocation else {
+            showError(message: "Please enter a valid pickup address")
+            return
+        }
+        
+        guard let dropoff = dropoffLocation else {
+            showError(message: "Please enter a valid dropoff address")
+            return
+        }
+        
+        guard isLocationInAustralia(pickup.coordinate) else {
+            showError(message: "Pickup address must be within Australia")
+            return
+        }
+        
+        guard isLocationInAustralia(dropoff.coordinate) else {
+            showError(message: "Dropoff address must be within Australia")
+            return
+        }
+        
+        createBooking()
+        dismiss()
+    }
+    
+    private func isLocationInAustralia(_ coordinate: CLLocationCoordinate2D) -> Bool {
+        let latitude = coordinate.latitude
+        let longitude = coordinate.longitude
+        
+        // Australia bounds: roughly -44 to -10 latitude, 113 to 154 longitude
+        return latitude >= -44.0 && latitude <= -10.0 && 
+               longitude >= 113.0 && longitude <= 154.0
+    }
+    
+    private func showError(message: String) {
+        errorMessage = message
+        showError = true
     }
     
     private func createBooking() {

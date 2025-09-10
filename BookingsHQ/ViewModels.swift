@@ -15,7 +15,7 @@ class BookingViewModel: ObservableObject {
     @Published var showError = false
     @Published var errorMessage = ""
     
-    // initialize with fake data
+    // initialise with fake data
     init() {
         loadFakeData()
     }
